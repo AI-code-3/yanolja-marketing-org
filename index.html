@@ -1,375 +1,355 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yanolja Marketing Team Structure</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+import React, { useState } from 'react';
+import { ChevronDown, ChevronRight, Users } from 'lucide-react';
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8fafc;
-            color: #334155;
-            line-height: 1.5;
-            padding: 20px;
-        }
+const OrgNode = ({ node, level = 0 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const hasChildren = node.children && node.children.length > 0;
+  
+  // Updated color scheme - Head of Marketing is Team Lead level
+  const bgColors = {
+    0: 'bg-purple-500',    // Team Lead (Head of Marketing)
+    1: 'bg-purple-400',    // Manager Level (Marketing Ops Manager, Digital Marketing Manager, etc.)
+    2: 'bg-purple-300',    // Specialist/Coordinator Level
+    3: 'bg-gray-100',      // Individual Contributor
+    4: 'bg-gray-50'        // Junior IC
+  };
+  
+  const textColors = {
+    0: 'text-white',
+    1: 'text-white',
+    2: 'text-gray-800',
+    3: 'text-gray-700',
+    4: 'text-gray-700'
+  };
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        .org-chart {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .node {
-            margin-bottom: 8px;
-        }
-
-        .node-button {
-            width: 100%;
-            text-align: left;
-            padding: 12px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
-        }
-
-        .node-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Professional color scheme */
-        .node-button.level-0 {
-            background: #1e40af;
-            color: white;
-            font-weight: 600;
-        }
-
-        .node-button.level-1 {
-            background: #3b82f6;
-            color: white;
-            font-weight: 500;
-        }
-
-        .node-button.level-2 {
-            background: #60a5fa;
-            color: white;
-        }
-
-        .node-button.level-3 {
-            background: #e2e8f0;
-            color: #475569;
-        }
-
-        .node-button.level-4 {
-            background: #f1f5f9;
-            color: #64748b;
-            border: 1px solid #e2e8f0;
-        }
-
-        .node-content {
-            display: flex;
-            align-items: center;
-        }
-
-        .node-icon {
-            margin-right: 10px;
-            font-size: 12px;
-            min-width: 16px;
-        }
-
-        .node-details {
-            flex: 1;
-        }
-
-        .node-title {
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-
-        .node-role {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-bottom: 2px;
-        }
-
-        .node-count {
-            font-size: 11px;
-            opacity: 0.7;
-            font-weight: 500;
-        }
-
-        .children {
-            margin-left: 20px;
-            margin-top: 8px;
-            border-left: 2px solid #e2e8f0;
-            padding-left: 16px;
-            opacity: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .children.show {
-            opacity: 1;
-            max-height: 1000px;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat {
-            text-align: center;
-            padding: 16px;
-            background: #f8fafc;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .stat-number {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1e40af;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .hint {
-            text-align: center;
-            margin-top: 20px;
-            padding: 12px;
-            background: #f1f5f9;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        @media (max-width: 768px) {
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .children {
-                margin-left: 16px;
-                padding-left: 12px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Yanolja Marketing Team Structure</h1>
-            <p>Click any team to expand and view detailed structure</p>
-            
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-number">23-25</div>
-                    <div class="stat-label">Team Members</div>
+  return (
+    <div className="mb-2">
+      <button 
+        className={`${bgColors[level] || 'bg-gray-50'} ${textColors[level] || 'text-gray-700'} p-3 rounded-lg shadow-sm ${hasChildren ? 'cursor-pointer hover:shadow-md' : ''} transition-all w-full text-left`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (hasChildren) setIsExpanded(!isExpanded);
+        }}
+        type="button"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {hasChildren && (
+              <span className="flex-shrink-0">
+                {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+              </span>
+            )}
+            {!hasChildren && <Users size={16} className="flex-shrink-0" />}
+            <div>
+              <div className={`font-semibold ${level < 2 ? 'text-base' : 'text-sm'}`}>{node.title}</div>
+              <div className={`text-xs ${level < 2 ? 'opacity-90' : 'opacity-75'} mt-0.5`}>{node.role}</div>
+              {node.count && (
+                <div className={`text-xs mt-1 ${level < 2 ? 'opacity-80' : 'opacity-70'}`}>
+                  {node.count}
                 </div>
-                <div class="stat">
-                    <div class="stat-number">6</div>
-                    <div class="stat-label">Core Teams</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">200+</div>
-                    <div class="stat-label">Annual Events</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">2</div>
-                    <div class="stat-label">Regions</div>
-                </div>
+              )}
             </div>
+          </div>
         </div>
-
-        <div class="org-chart">
-            <div id="chart-content"></div>
-            <div class="hint">
-                Click any team to expand and see the detailed structure
-            </div>
+      </button>
+      
+      {hasChildren && isExpanded && (
+        <div className="ml-6 mt-2 border-l-2 border-purple-200 pl-3">
+          {node.children.map((child, index) => (
+            <OrgNode key={index} node={child} level={level + 1} />
+          ))}
         </div>
+      )}
     </div>
+  );
+};
 
-    <script>
-        const orgData = {
-            title: "Head of Marketing",
-            role: "Executive Leadership - Full Marketing Strategy & P&L",
-            count: "23-25 people",
+const YanoljaMarketingOrg = () => {
+  const orgStructure = {
+    title: "Head of Marketing",
+    role: "Executive Leadership - Full Marketing Strategy & P&L",
+    count: "23-25 people",
+    children: [
+      {
+        title: "Marketing Operations Manager",
+        role: "HubSpot, AI Automations & Marketing Analytics",
+        count: "5-6 people",
+        children: [
+          {
+            title: "HubSpot Specialist",
+            role: "Automations, Workflow Optimizations, Data Hygiene Maintenance & Analysis"
+          },
+          {
+            title: "AI Implementation",
+            role: "Lead Nurturing, Scoring, & Lead to MQL Conversion"
+          },
+          {
+            title: "Marketing Analytics Specialist",
+            role: "Campaign performance tracking, ROI analysis & marketing dashboards"
+          },
+          {
+            title: "Sales Enablement Specialist",
+            role: "Sales collateral, product sheets, battlecards & sales-marketing alignment"
+          },
+          {
+            title: "Marketing Project Manager",
+            role: "HTR, Aahoa, Capterra, Software Suggest/Advice & campaign coordination"
+          }
+        ]
+      },
+      {
+        title: "Growth Marketing",
+        role: "Lead Generation",
+        count: "2 people",
+        children: [
+          {
+            title: "Performance Marketing Manager",
+            role: "Lead Generation across all regions (Americas, Asia, Africa)"
+          }
+        ]
+      },
+      {
+        title: "Digital Marketing Manager",
+        role: "SEO, SEM & Social Media",
+        count: "2-3 people",
+        children: [
+          {
+            title: "SEO & GEO Manager",
+            role: "Organic search, AI Search, technical SEO & content optimization"
+          },
+          {
+            title: "Social Media Manager",
+            role: "LinkedIn, Facebook, Instagram, Twitter"
+          }
+        ]
+      },
+      {
+        title: "Content, Creative & Web Development",
+        role: "Content Strategy, Design, Video Production & Website Management",
+        count: "8-9 people",
+        children: [
+          {
+            title: "Content & Communication Strategist",
+            role: "Content Strategy, Website Copy, Emails, WhatsApp & Communication Media"
+          },
+          {
+            title: "UX Analyst",
+            role: "User Behavior, Market Research, Industry Analysis, Heat Mapping etc",
+            count: "3 people"
+          },
+          {
+            title: "Graphic Designers",
+            role: "Visual design & marketing collateral"
+          },
+          {
+            title: "Video Creators & Thinker",
+            role: "Video content creation & strategy"
+          },
+          {
+            title: "Website Backend Developers",
+            role: "Keep the website performance to its optimum level"
+          }
+        ]
+      },
+      {
+        title: "Lead of Product Marketing",
+        role: "Product Positioning, GTM Strategy & Customer Advocacy",
+        count: "2-3 people",
+        children: [
+          {
+            title: "Product Marketing Specialist",
+            role: "Product Market Positioning & Value Proposition"
+          },
+          {
+            title: "Case Studies & Testimonials Manager",
+            role: "Customer success stories, testimonials & case studies across all regions"
+          }
+        ]
+      },
+      {
+        title: "Lead of Events & Partnerships",
+        role: "Industry Events, Trade Shows & Strategic Alliances",
+        count: "7-8 people",
+        children: [
+          {
+            title: "Senior Event Manager - Americas",
+            role: "Event Strategy, Finding partners, Sponsors, Tying with Hotel Associations",
             children: [
-                {
-                    title: "Marketing Operations Manager",
-                    role: "HubSpot, AI Automations & Marketing Analytics",
-                    count: "5-6 people",
-                    children: [
-                        { title: "HubSpot Specialist", role: "Automations, Workflow Optimizations, Data Hygiene Maintenance & Analysis" },
-                        { title: "AI Implementation", role: "Lead Nurturing, Scoring, & Lead to MQL Conversion" },
-                        { title: "Marketing Analytics Specialist", role: "Campaign performance tracking, ROI analysis & marketing dashboards" },
-                        { title: "Sales Enablement Specialist", role: "Sales collateral, product sheets, battlecards & sales-marketing alignment" },
-                        { title: "Marketing Project Manager", role: "HTR, Aahoa, Capterra, Software Suggest/Advice & campaign coordination" }
-                    ]
-                },
-                {
-                    title: "Growth Marketing",
-                    role: "Lead Generation",
-                    count: "2 people",
-                    children: [
-                        { title: "Performance Marketing Manager", role: "Lead Generation across all regions (Americas, Asia, Africa)" }
-                    ]
-                },
-                {
-                    title: "Digital Marketing Manager",
-                    role: "SEO, SEM & Social Media",
-                    count: "2-3 people",
-                    children: [
-                        { title: "SEO & GEO Manager", role: "Organic search, AI Search, technical SEO & content optimization" },
-                        { title: "Social Media Manager", role: "LinkedIn, Facebook, Instagram, Twitter" }
-                    ]
-                },
-                {
-                    title: "Content, Creative & Web Development",
-                    role: "Content Strategy, Design, Video Production & Website Management",
-                    count: "8-9 people",
-                    children: [
-                        { title: "Content & Communication Strategist", role: "Content Strategy, Website Copy, Emails, WhatsApp & Communication Media" },
-                        { title: "UX Analyst", role: "User Behavior, Market Research, Industry Analysis, Heat Mapping etc", count: "3 people" },
-                        { title: "Graphic Designers", role: "Visual design & marketing collateral" },
-                        { title: "Video Creators & Thinker", role: "Video content creation & strategy" },
-                        { title: "Website Backend Developers", role: "Keep the website performance to its optimum level" }
-                    ]
-                },
-                {
-                    title: "Lead of Product Marketing",
-                    role: "Product Positioning, GTM Strategy & Customer Advocacy",
-                    count: "2-3 people",
-                    children: [
-                        { title: "Product Marketing Specialist", role: "Product Market Positioning & Value Proposition" },
-                        { title: "Case Studies & Testimonials Manager", role: "Customer success stories, testimonials & case studies across all regions" }
-                    ]
-                },
-                {
-                    title: "Lead of Events & Partnerships",
-                    role: "Industry Events, Trade Shows & Strategic Alliances",
-                    count: "7-8 people",
-                    children: [
-                        {
-                            title: "Senior Event Manager - Americas",
-                            role: "Event Strategy, Finding partners, Sponsors, Tying with Hotel Associations",
-                            children: [
-                                { title: "Event Marketing Specialist - Americas", role: "Pre/post event coordinations, running campaigns & lead capture" }
-                            ]
-                        },
-                        {
-                            title: "Senior Event Manager - Asia+Africa",
-                            role: "Event Strategy, Finding partners, Sponsors, Tying with Hotel Associations",
-                            children: [
-                                { title: "Event Marketing Specialist - Asia+Africa", role: "Pre/post event coordinations, running campaigns & lead capture" }
-                            ]
-                        },
-                        { title: "Event Operations Coordinator", role: "Event logistics, booth materials, shipping, vendor coordination (supports both regions)" },
-                        { title: "Partnership Marketing Specialist", role: "Channel partners, integration partners & co-marketing alliances", count: "2 people" }
-                    ]
-                },
-                {
-                    title: "Head of Company Branding",
-                    role: "Public Relations, Media Relations & Corporate Comms",
-                    count: "2 people",
-                    children: [
-                        { title: "PR and Company Branding Specialist", role: "Media Relations & Press Coverage" }
-                    ]
-                }
+              {
+                title: "Event Marketing Specialist - Americas",
+                role: "Pre/post event coordinations, running campaigns & lead capture"
+              }
             ]
-        };
+          },
+          {
+            title: "Senior Event Manager - Asia+Africa",
+            role: "Event Strategy, Finding partners, Sponsors, Tying with Hotel Associations",
+            children: [
+              {
+                title: "Event Marketing Specialist - Asia+Africa",
+                role: "Pre/post event coordinations, running campaigns & lead capture"
+              }
+            ]
+          },
+          {
+            title: "Event Operations Coordinator",
+            role: "Event logistics, booth materials, shipping, vendor coordination (supports both regions)"
+          },
+          {
+            title: "Partnership Marketing Specialist",
+            role: "Channel partners, integration partners & co-marketing alliances",
+            count: "2 people"
+          }
+        ]
+      },
+      {
+        title: "Head of Company Branding",
+        role: "Public Relations, Media Relations & Corporate Comms",
+        count: "2 people",
+        children: [
+          {
+            title: "PR and Company Branding Specialist",
+            role: "Media Relations & Press Coverage"
+          }
+        ]
+      }
+    ]
+  };
 
-        function createNodeHTML(node, level = 0) {
-            const hasChildren = node.children && node.children.length > 0;
-            const nodeId = `node-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-            
-            let html = `
-                <div class="node">
-                    <button class="node-button level-${level}" onclick="${hasChildren ? `toggleNode('${nodeId}')` : ''}">
-                        <div class="node-content">
-                            <span class="node-icon">${hasChildren ? '▶' : '●'}</span>
-                            <div class="node-details">
-                                <div class="node-title">${node.title}</div>
-                                <div class="node-role">${node.role}</div>
-                                ${node.count ? `<div class="node-count">${node.count}</div>` : ''}
-                            </div>
-                        </div>
-                    </button>
-            `;
-            
-            if (hasChildren) {
-                html += `<div class="children" id="${nodeId}">`;
-                node.children.forEach(child => {
-                    html += createNodeHTML(child, level + 1);
-                });
-                html += '</div>';
-            }
-            
-            html += '</div>';
-            return html;
-        }
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+            Yanolja Marketing Team Structure
+          </h1>
+          <p className="text-gray-600 mb-4 text-sm md:text-base">
+            Comprehensive marketing department structure with detailed team compositions
+          </p>
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+            <p className="text-sm text-yellow-800">
+              <strong>Note:</strong> This is the Yanolja marketing team structure optimized for B2B SaaS hospitality technology. 
+              Click any team to expand/collapse details.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3 text-xs md:text-sm text-gray-600 mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-500 rounded"></div>
+              <span>Team Lead</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-400 rounded"></div>
+              <span>Manager</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-300 rounded"></div>
+              <span>Specialist/Coordinator</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-gray-100 rounded border border-gray-300"></div>
+              <span>Individual Contributor</span>
+            </div>
+          </div>
+          
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
+            <p className="text-sm text-blue-800">
+              <strong>Tip:</strong> Click any team to expand/collapse and see the detailed structure. This org chart represents a lean marketing team optimized for 200+ events annually.
+            </p>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-lg p-4 md:p-8">
+          <OrgNode node={orgStructure} />
+        </div>
 
-        function toggleNode(nodeId) {
-            const element = document.getElementById(nodeId);
-            const button = element.previousElementSibling;
-            const icon = button.querySelector('.node-icon');
-            
-            if (element.classList.contains('show')) {
-                element.classList.remove('show');
-                icon.textContent = '▶';
-            } else {
-                element.classList.add('show');
-                icon.textContent = '▼';
-            }
-        }
+        <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Team Summary</h2>
+            <div className="text-sm text-gray-500">Last updated: October 2025</div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg text-center">
+              <div className="text-3xl font-bold text-purple-600">23-25</div>
+              <div className="text-sm text-gray-600 mt-1">Total Team Members</div>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg text-center">
+              <div className="text-3xl font-bold text-blue-600">6</div>
+              <div className="text-sm text-gray-600 mt-1">Sub-Teams</div>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg text-center">
+              <div className="text-3xl font-bold text-green-600">200+</div>
+              <div className="text-sm text-gray-600 mt-1">Annual Events</div>
+            </div>
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg text-center">
+              <div className="text-3xl font-bold text-orange-600">2</div>
+              <div className="text-sm text-gray-600 mt-1">Regional Markets</div>
+            </div>
+          </div>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('chart-content').innerHTML = createNodeHTML(orgData);
-        });
-    </script>
-</body>
-</html>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div>
+                <div className="font-semibold text-gray-800">Marketing Operations</div>
+                <div className="text-gray-600 text-xs mt-1">5-6 people</div>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div>
+                <div className="font-semibold text-gray-800">Growth Marketing</div>
+                <div className="text-gray-600 text-xs mt-1">2 people</div>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div>
+                <div className="font-semibold text-gray-800">Digital Marketing</div>
+                <div className="text-gray-600 text-xs mt-1">2-3 people</div>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div>
+                <div className="font-semibold text-gray-800">Content, Creative & Web</div>
+                <div className="text-gray-600 text-xs mt-1">8-9 people</div>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div>
+                <div className="font-semibold text-gray-800">Product Marketing</div>
+                <div className="text-gray-600 text-xs mt-1">2-3 people</div>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div>
+                <div className="font-semibold text-gray-800">Events & Partnerships</div>
+                <div className="text-gray-600 text-xs mt-1">7-8 people</div>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div>
+                <div className="font-semibold text-gray-800">Company Branding</div>
+                <div className="text-gray-600 text-xs mt-1">2 people</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default YanoljaMarketingOrg;
